@@ -26,12 +26,13 @@ public class Collegue {
 	}
 
 	// Sans mot de passe avec matricule
-	public Collegue(Integer matricule, String nom, String prenoms, String photoUrl, List<String> roles) {
+	public Collegue(Integer matricule, Integer nbVotes, String nom, String prenoms, String photoUrl,
+			List<String> roles) {
 		super();
 		this.matricule = matricule;
 		this.nom = nom;
 		this.prenoms = prenoms;
-
+		this.nbVotes = nbVotes;
 		this.photoUrl = photoUrl;
 		this.roles = roles;
 
@@ -88,9 +89,9 @@ public class Collegue {
 
 	@Column(name = "PHOTOURL")
 	private String photoUrl;
-	
-	@Column(name="NOMBRE_VOTES")
-	private Integer nbVotes;
+
+	@Column(name = "NOMBRE_VOTES")
+	private Integer nbVotes = 0;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> roles = new ArrayList<>();

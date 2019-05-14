@@ -37,7 +37,7 @@ public class CollegueControlleur {
 	public List<Collegue> RetournerListeColleguesParNom(@RequestParam("nomClient") String nomClient) {
 		List<Collegue> listeDeNoms = collegueService.rechercherParNom(nomClient);
 		return listeDeNoms.stream()
-				.map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNom(),
+				.map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNbVotes(), collegue.getNom(),
 						collegue.getPrenoms(), collegue.getPhotoUrl(), collegue.getRoles()))
 				.collect(Collectors.toList());
 
@@ -45,10 +45,16 @@ public class CollegueControlleur {
 	
 	@GetMapping(path="/all")
 	@ResponseBody
-	public Collegue[] afficherTousCollegues() {
+	public Collegue[] afficherTousColleguesDistants() {
 
 		return collegueService.tableauCollegueDistant();
+	}
+	
+	@GetMapping(path="/players")
+	@ResponseBody
+	public List<Collegue> afficherTousColleguesLocal() {
 
+		return collegueService.list();
 	}
 
 	@GetMapping(path = "/{matricule}")

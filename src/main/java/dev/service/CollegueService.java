@@ -1,6 +1,7 @@
 package dev.service;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,8 +21,9 @@ public class CollegueService {
 
 	public List<Collegue> list() {
 		return cRepo.findAll()
-				.stream().map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNom(),
+				.stream().map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNbVotes(), collegue.getNom(),
 						collegue.getPrenoms(), collegue.getPhotoUrl(), collegue.getRoles()))
+				.sorted(Comparator.comparing(Collegue::getNbVotes))
 				.collect(Collectors.toList());
 	}
 
