@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import dev.entites.Collegue;
+import dev.entites.Vote;
 import dev.exceptions.CollegueInvalideException;
 import dev.exceptions.CollegueNonTrouveException;
 import dev.repository.CollegueRepository;
@@ -20,11 +21,10 @@ public class CollegueService {
 	CollegueRepository cRepo;
 
 	public List<Collegue> list() {
-		return cRepo.findAll()
-				.stream().map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNbVotes(), collegue.getNom(),
+		return cRepo.findAll().stream()
+				.map(collegue -> new Collegue(collegue.getMatricule(), collegue.getNbVotes(), collegue.getNom(),
 						collegue.getPrenoms(), collegue.getPhotoUrl(), collegue.getRoles()))
-				.sorted(Comparator.comparing(Collegue::getNbVotes))
-				.collect(Collectors.toList());
+				.sorted(Comparator.comparing(Collegue::getNbVotes).reversed()).collect(Collectors.toList());
 	}
 
 	public Collegue[] tableauCollegueDistant() {
@@ -103,30 +103,24 @@ public class CollegueService {
 		return nouveauCollegue;
 	}
 
-	public void ajoutVote(Integer matricule) throws CollegueNonTrouveException {
-		Collegue collegueVote = rechercherParMatricule(matricule);
+	public void ajoutVote(Vote vote) throws CollegueNonTrouveException {
+		Collegue collegueVote = rechercherParMatricule(vote.getMatriculeCollegue());
 
 		// retourner une exception `CollegueNonTrouveException`
 		// si le matricule ne correspond à aucun collègue
 		if (collegueVote == null) {
 			throw new CollegueNonTrouveException();
 		}
-		
-		collegueVote.setNbVotes(collegueVote.getNbVotes()+2);
-		cRepo.save(collegueVote);
-	}
-	
-	public void moinsVote(Integer matricule) throws CollegueNonTrouveException {
-		Collegue collegueVote = rechercherParMatricule(matricule);
 
-		// retourner une exception `CollegueNonTrouveException`
-		// si le matricule ne correspond à aucun collègue
-		if (collegueVote == null) {
-			throw new CollegueNonTrouveException();
+		else if (vote.getChoixVote().toString().equals("YES")) {
+			collegueVote.setNbVotes(collegueVote.getNbVotes() + 2);
+		} else if (vote.getChoixVote().toString().equals("NO")) {
+			collegueVote.setNbVotes(collegueVote.getNbVotes() - 1);
 		}
 		
-		collegueVote.setNbVotes(collegueVote.getNbVotes()-1);
+		else System.out.println("mauvais choix");
 		cRepo.save(collegueVote);
+
 	}
 
 	public Collegue modifierPhotoUrl(Integer matricule, String photoUrl)

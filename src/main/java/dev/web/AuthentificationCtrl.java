@@ -48,13 +48,14 @@ public class AuthentificationCtrl {
 	private CollegueService collegueService;
 
 	@PostMapping(value = "/login")
-	public ResponseEntity authenticate(@RequestBody InfosAuthentification collegueInscription, HttpServletResponse response) throws URISyntaxException {
-		
+	public ResponseEntity authenticate(@RequestBody InfosAuthentification collegueInscription,
+			HttpServletResponse response) throws URISyntaxException {
+
 		System.out.println("hello");
 		RestTemplate rt = new RestTemplate();
 
-		ResponseEntity<?> result = rt.postForEntity(
-				"https://julie-collegue-api.herokuapp.com/auth", collegueInscription, Collegue.class);
+		ResponseEntity<?> result = rt.postForEntity("https://julie-collegue-api.herokuapp.com/auth",
+				collegueInscription, Collegue.class);
 		String jetonJWT = result.getHeaders().getFirst("Set-Cookie").split(";")[0].split("=")[1];
 		Cookie authCookie = new Cookie(TOKEN_COOKIE, jetonJWT);
 
@@ -69,23 +70,26 @@ public class AuthentificationCtrl {
 
 		ResponseEntity<Collegue> rep2 = rt.exchange(requestEntity, Collegue.class);
 		Collegue collegueConnecte = rep2.getBody();
-		
+
 		try {
 			collegueService.rechercherParMatricule(collegueConnecte.getMatricule());
 			System.out.println("Collegue existant dans la base de donnée");
 		} catch (CollegueNonTrouveException e1) {
 			try {
 				System.out.println("Collègue non trouvé, ajout dans la base de donnée");
+				try {
+					collegueConnecte.setPhotoUrl(collegueInscription.getUrlPhoto());
+				} catch (NullPointerException e2) {
+					System.out.println("pas d'url");
+				}
+
 				collegueService.ajouterUnCollegue(collegueConnecte);
 			} catch (CollegueInvalideException e) {
 				System.out.println("Vous n'avez pas entré les bons paramètres");
 			}
 		}
-		
-		
+
 		return ResponseEntity.ok(collegueConnecte);
-		
-		
 
 	}
 
